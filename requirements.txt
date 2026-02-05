@@ -4,3 +4,4 @@ SQLAlchemy==2.0.46
 mysql-connector-python==9.5.0
 PyMySQL==1.1.2
 plotly==6.5.2
+cryptography==46.0.4

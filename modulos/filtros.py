@@ -1,4 +1,5 @@
 import streamlit as st
+from modulos.utils import get_assets_path as gap
 
 def inicio_filtros(df):
     if 'filtro_productos' not in st.session_state:
@@ -27,6 +28,7 @@ def reiniciar_filtros():
 
 def generar_sidebar(df):
     with st.sidebar:
+        st.image(gap('logo.png'))
         st.title('Controles')
     
         col_button1, col_button2 = st.columns(2)

@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from modulos.conexion_sql import obtener_datos
+import datetime
+from modulos.utils import obtener_datos
 import modulos.filtros as flt
 import modulos.metricas as mtr
 import modulos.graficos as grf
@@ -11,6 +12,8 @@ def main():
     st.set_page_config(page_title='Dashboard Pro',
                     page_icon='📊',
                     layout= 'wide')
+    fecha_actual = datetime.datetime.now().strftime('%d %B %Y')
+    st.write(f'Fecha: \n {fecha_actual}')
     st.title('🚀 Dashboard de Ventas')
     st.write('Bienvenido a tu dashboard profesional')
 
@@ -25,18 +28,15 @@ def main():
     st.markdown("#### 📅 Periodo de Análisis")
     fecha_min = df['fecha'].min()
     fecha_max = df['fecha'].max()
-    rango_fechas = st.date_input('Seleccionar periodo', min_value=fecha_min, max_value=fecha_max, key='filtro_fechas', label_visibility="collapsed")
+    rango_fechas = st.date_input('Seleccionar periodo', min_value=fecha_min, max_value=fecha_max, key='filtro_fechas', label_visibility="collapsed", width=235)
 
-    col1, col2 = st.columns([1,2.6], vertical_alignment='center')
-    with col1:
-        seleccionar_todos = st.checkbox('Seleccionar todos los productos', value=False, key='seleccionar_todos_productos')
-        if seleccionar_todos:
-            productos_seleccionados = df['producto'].unique().tolist()
-        else: 
-            productos_seleccionados = productos_elegir
-    with col2:
-        st.markdown('**(para que se aplique el filtro de producto asegúrate de desmarcar esta casilla)**')
-        
+  
+    seleccionar_todos = st.checkbox('Seleccionar todos los productos **(para que se aplique el filtro de producto asegúrate de desmarcar esta casilla)**', value=False, key='seleccionar_todos_productos')
+    if seleccionar_todos:
+        productos_seleccionados = df['producto'].unique().tolist()
+    else: 
+        productos_seleccionados = productos_elegir
+   
     st.divider()    
         
     df_filtrado = flt.aplicar_filtros(df, productos_seleccionados, categorias_seleccionadas, rango_fechas, regiones_seleccionadas) 
@@ -83,6 +83,17 @@ def main():
             st.markdown("#### Datos completos")
             st.dataframe(df_filtrado, hide_index=True, width='stretch', column_config={
                 'fecha': st.column_config.DateColumn('Fecha de Venta', format='DD-MM-YYYY')})
+    # st.markdown("---")
+    # st.markdown("Fuente de datos: [API Pública de Datos Económicos](URL_DE_LA_FUENTE)")
+
+    st.markdown("---")
+    with st.expander("ℹ️ Detalles de la Fuente de Datos"):
+        st.markdown("""
+        *   **Fuente:** Base de Datos MySQL Interna (Esquema: `ventas_db`)
+        *   **Sistema:** CRM de Gestión de Clientes v3.1
+        *   **Propietario:** Departamento de TI / Equipo de Ventas
+        *   **Última Actualización:** 15 de Noviembre de 2024
+        """)
 
 if __name__ == '__main__':
     main()
