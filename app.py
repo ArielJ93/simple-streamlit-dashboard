@@ -1,10 +1,11 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from modules.conexion_sql import obtener_datos
-from modules.filtros import inicio_filtros, generar_sidebar, aplicar_filtros
-from modules.metricas import metrica_prom_ventas, metrica_cant_productos, metrica_total_ventas
-from modules.graficos import grafico_linea, grafico_barra_producto, grafico_torta, grafico_barra_region
+from modulos.conexion_sql import obtener_datos
+import modulos.filtros as flt
+import modulos.metricas as mtr
+import modulos.graficos as grf
+
 
 def main():
     st.set_page_config(page_title='Dashboard Pro',
@@ -17,9 +18,9 @@ def main():
     df = obtener_datos(conn)
     df['fecha'] = pd.to_datetime(df['fecha'])
 
-    inicio_filtros(df)
+    flt.inicio_filtros(df)
 
-    productos_elegir, categorias_seleccionadas = generar_sidebar(df)
+    productos_elegir, categorias_seleccionadas, regiones_seleccionadas = flt.generar_sidebar(df)
 
     st.markdown("#### 📅 Periodo de Análisis")
     fecha_min = df['fecha'].min()
@@ -38,21 +39,21 @@ def main():
         
     st.divider()    
         
-    df_filtrado = aplicar_filtros(df, productos_seleccionados, categorias_seleccionadas, rango_fechas) 
+    df_filtrado = flt.aplicar_filtros(df, productos_seleccionados, categorias_seleccionadas, rango_fechas, regiones_seleccionadas) 
         
     if df_filtrado.empty:
         st.warning("⚠️ No hay datos para los filtros seleccionados.")
     else:
         col1,col2,col3 = st.columns(3)
-        with col1: metrica_total_ventas(df_filtrado)   
-        with col2: metrica_cant_productos(df_filtrado)
-        with col3: metrica_prom_ventas(df_filtrado)
+        with col1: mtr.metrica_total_ventas(df_filtrado)   
+        with col2: mtr.metrica_cant_productos(df_filtrado)
+        with col3: mtr.metrica_prom_ventas(df_filtrado)
             
         tab_graficos, tab_equipo, tab_datos = st.tabs(["📈 Análisis de Ventas", "👥 Vendedores y Regiones", "📄 Registro Completo"])   
         
         with tab_graficos:
             col1, col_divider, col2 = st.columns([10,0.5,10])
-            with col1: grafico_linea(df_filtrado)
+            with col1: grf.grafico_linea(df_filtrado)
             with col_divider:
                 st.markdown("""
                     <div style="
@@ -62,11 +63,11 @@ def main():
                         opacity: 0.6;
                     "></div>""", 
                     unsafe_allow_html=True)
-            with col2: grafico_barra_producto(df_filtrado)
+            with col2: grf.grafico_barra_producto(df_filtrado)
                 
         with tab_equipo:
             col1, col_divider, col2 = st.columns([10, 0.5, 10])
-            with col1:  grafico_torta(df_filtrado)   
+            with col1: grf.grafico_torta(df_filtrado)   
             with col_divider:
                 st.markdown("""
                     <div style="
@@ -76,7 +77,7 @@ def main():
                         opacity: 0.6;
                     "></div>""", 
                     unsafe_allow_html=True)
-            with col2: grafico_barra_region(df_filtrado)
+            with col2: grf.grafico_barra_region(df_filtrado)
                 
         with tab_datos:    
             st.markdown("#### Datos completos")
