@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import datetime
 from modulos.utils import obtener_datos
 import modulos.filtros as flt
@@ -29,31 +28,35 @@ def main():
     fecha_min = df['fecha'].min()
     fecha_max = df['fecha'].max()
     rango_fechas = st.date_input('Seleccionar periodo', min_value=fecha_min, max_value=fecha_max, key='filtro_fechas', label_visibility="collapsed", width=235)
+    if len(rango_fechas) != 2:
+        st.info("👆 Por favor selecciona una fecha de inicio y fin para ver los datos.")
+        st.stop() # Detiene la ejecución del resto del script hasta que se arregle
+        
+    inicio, fin = rango_fechas
 
-  
     seleccionar_todos = st.checkbox('Seleccionar todos los productos **(para que se aplique el filtro de producto asegúrate de desmarcar esta casilla)**', value=False, key='seleccionar_todos_productos')
     if seleccionar_todos:
         productos_seleccionados = df['producto'].unique().tolist()
     else: 
         productos_seleccionados = productos_elegir
-   
+
     st.divider()    
+    df_filtrado = flt.aplicar_filtros(df, productos_seleccionados, categorias_seleccionadas, regiones_seleccionadas)    
+    df_filtrado_completo = flt.aplicar_filtro_completo(df_filtrado, rango_fechas) 
         
-    df_filtrado = flt.aplicar_filtros(df, productos_seleccionados, categorias_seleccionadas, rango_fechas, regiones_seleccionadas) 
-        
-    if df_filtrado.empty:
+    if df_filtrado_completo.empty:
         st.warning("⚠️ No hay datos para los filtros seleccionados.")
     else:
         col1,col2,col3 = st.columns(3)
-        with col1: mtr.metrica_total_ventas(df_filtrado)   
-        with col2: mtr.metrica_cant_productos(df_filtrado)
-        with col3: mtr.metrica_prom_ventas(df_filtrado)
+        with col1: mtr.metrica_total_ventas(df_filtrado, inicio, fin)   
+        with col2: mtr.metrica_cant_productos(df_filtrado, inicio, fin)
+        with col3: mtr.metrica_prom_ventas(df_filtrado, inicio, fin)
             
         tab_graficos, tab_equipo, tab_datos = st.tabs(["📈 Análisis de Ventas", "👥 Vendedores y Regiones", "📄 Registro Completo"])   
         
         with tab_graficos:
             col1, col_divider, col2 = st.columns([10,0.5,10])
-            with col1: grf.grafico_linea(df_filtrado)
+            with col1: grf.grafico_linea(df_filtrado_completo)
             with col_divider:
                 st.markdown("""
                     <div style="
@@ -63,11 +66,11 @@ def main():
                         opacity: 0.6;
                     "></div>""", 
                     unsafe_allow_html=True)
-            with col2: grf.grafico_barra_producto(df_filtrado)
+            with col2: grf.grafico_barra_producto(df_filtrado_completo)
                 
         with tab_equipo:
             col1, col_divider, col2 = st.columns([10, 0.5, 10])
-            with col1: grf.grafico_torta(df_filtrado)   
+            with col1: grf.grafico_torta(df_filtrado_completo)   
             with col_divider:
                 st.markdown("""
                     <div style="
@@ -77,11 +80,11 @@ def main():
                         opacity: 0.6;
                     "></div>""", 
                     unsafe_allow_html=True)
-            with col2: grf.grafico_barra_region(df_filtrado)
+            with col2: grf.grafico_barra_region(df_filtrado_completo)
                 
         with tab_datos:    
             st.markdown("#### Datos completos")
-            st.dataframe(df_filtrado, hide_index=True, width='stretch', column_config={
+            st.dataframe(df_filtrado_completo, hide_index=True, width='stretch', column_config={
                 'fecha': st.column_config.DateColumn('Fecha de Venta', format='DD-MM-YYYY')})
     # st.markdown("---")
     # st.markdown("Fuente de datos: [API Pública de Datos Económicos](URL_DE_LA_FUENTE)")

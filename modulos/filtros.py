@@ -52,15 +52,16 @@ def generar_sidebar(df):
         
     return productos_elegir, categorias_seleccionadas, regiones_seleccionadas
 
-def aplicar_filtros(df, productos_seleccionados, categorias_seleccionadas, rango_fechas, regiones_seleccionadas):
+def aplicar_filtros(df, productos_seleccionados, categorias_seleccionadas, regiones_seleccionadas):
     df_filtrado = df[df['producto'].isin(productos_seleccionados)]
+    df_filtrado = df_filtrado[df_filtrado['categoria'].isin(categorias_seleccionadas)]   
+    df_filtrado= df_filtrado[df_filtrado['region'].isin(regiones_seleccionadas)]
+    
+    return df_filtrado
 
+def aplicar_filtro_completo(df_filtrado_final, rango_fechas):
     if len(rango_fechas) == 2:
         inicio, fin = rango_fechas
-        df_filtrado = df_filtrado[(df_filtrado['fecha'].dt.date >= inicio) & 
-            (df_filtrado['fecha'].dt.date <= fin)]
-
-    df_filtrado = df_filtrado[df_filtrado['categoria'].isin(categorias_seleccionadas)]   
-    
-    df_filtrado = df_filtrado[df_filtrado['region'].isin(regiones_seleccionadas)]
-    return df_filtrado
+        df_filtrado_completo = df_filtrado_final[(df_filtrado_final['fecha'].dt.date >= inicio) & (df_filtrado_final['fecha'].dt.date <= fin)]
+        return df_filtrado_completo
+    return df_filtrado_final
