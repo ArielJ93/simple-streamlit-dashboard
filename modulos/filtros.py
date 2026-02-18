@@ -1,7 +1,9 @@
 import streamlit as st
 from modulos.utils import get_assets_path as gap
+import datetime
+import pandas as pd
 
-def inicio_filtros(df):
+def inicio_filtros(df: pd.DataFrame) -> None:
     if 'filtro_productos' not in st.session_state:
         st.session_state.filtro_productos = df['producto'].unique().tolist()[:10]
     
@@ -19,14 +21,14 @@ def inicio_filtros(df):
     
     
 
-def reiniciar_filtros():
+def reiniciar_filtros() -> None:
     st.session_state.filtro_productos = []
     st.session_state.filtro_fechas = []
     st.session_state.filtro_categoria = []
     st.session_state.filtro_region = []
     st.session_state.seleccionar_todos_productos = False
 
-def generar_sidebar(df):
+def generar_sidebar(df: pd.DataFrame) -> tuple[list[str], list[str], list[str]]:
     with st.sidebar:
         st.image(gap('logo.png'))
         st.title('Controles')
@@ -52,14 +54,14 @@ def generar_sidebar(df):
         
     return productos_elegir, categorias_seleccionadas, regiones_seleccionadas
 
-def aplicar_filtros(df, productos_seleccionados, categorias_seleccionadas, regiones_seleccionadas):
+def aplicar_filtros(df: pd.DataFrame, productos_seleccionados: list[str], categorias_seleccionadas: list[str], regiones_seleccionadas: list[str]) -> pd.DataFrame:
     df_filtrado = df[df['producto'].isin(productos_seleccionados)]
     df_filtrado = df_filtrado[df_filtrado['categoria'].isin(categorias_seleccionadas)]   
     df_filtrado= df_filtrado[df_filtrado['region'].isin(regiones_seleccionadas)]
     
     return df_filtrado
 
-def aplicar_filtro_completo(df_filtrado_final, rango_fechas):
+def aplicar_filtro_completo(df_filtrado_final: pd.DataFrame, rango_fechas: tuple[datetime.date, datetime.date]) -> pd.DataFrame:
     if len(rango_fechas) == 2:
         inicio, fin = rango_fechas
         df_filtrado_completo = df_filtrado_final[(df_filtrado_final['fecha'].dt.date >= inicio) & (df_filtrado_final['fecha'].dt.date <= fin)]

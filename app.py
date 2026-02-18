@@ -7,7 +7,7 @@ import modulos.metricas as mtr
 import modulos.graficos as grf
 
 
-def main():
+def main() -> None:
     st.set_page_config(page_title='Dashboard Pro',
                     page_icon='📊',
                     layout= 'wide')
@@ -47,10 +47,11 @@ def main():
     if df_filtrado_completo.empty:
         st.warning("⚠️ No hay datos para los filtros seleccionados.")
     else:
+        delta = mtr.Delta(df_filtrado, inicio, fin)
         col1,col2,col3 = st.columns(3)
-        with col1: mtr.metrica_total_ventas(df_filtrado, inicio, fin)   
-        with col2: mtr.metrica_cant_productos(df_filtrado, inicio, fin)
-        with col3: mtr.metrica_prom_ventas(df_filtrado, inicio, fin)
+        with col1: mtr.metrica_total_ventas(delta)   
+        with col2: mtr.metrica_cant_productos(delta)
+        with col3: mtr.metrica_prom_ventas(delta)
             
         tab_graficos, tab_equipo, tab_datos = st.tabs(["📈 Análisis de Ventas", "👥 Vendedores y Regiones", "📄 Registro Completo"])   
         
