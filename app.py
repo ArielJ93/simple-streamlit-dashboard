@@ -34,7 +34,7 @@ def main() -> None:
         
     inicio, fin = rango_fechas
 
-    seleccionar_todos = st.checkbox('Seleccionar todos los productos **(para que se aplique el filtro de producto asegúrate de desmarcar esta casilla)**', value=False, key='seleccionar_todos_productos')
+    seleccionar_todos = st.checkbox('Seleccionar todos los productos ', value=False, key='seleccionar_todos_productos')
     if seleccionar_todos:
         productos_seleccionados = df['producto'].unique().tolist()
     else: 
