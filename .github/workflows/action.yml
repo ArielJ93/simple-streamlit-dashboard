@@ -19,7 +19,7 @@ jobs:
           python-version: '3.14'
       
       - name: install mysql
-        run: 'pip install PyMySQL'
+        run: 'pip install PyMySQL streamlit'
 
       - name: run script
         env:
