@@ -2,7 +2,7 @@ name: maitain aiven mysql alive
 
 on:
   schedule:
-    - cron: '22 3,15 * * *'
+    - cron: '5 1 * * *'
   
   workflow_dispatch:
 
